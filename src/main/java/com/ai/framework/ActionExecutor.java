@@ -5,23 +5,24 @@ import java.net.URI;
 
 public class ActionExecutor {
 
-    public void execute(String response) {
+    public void execute(String aiResponse) {
 
         try {
 
-            if (response.contains("youtube")) {
+            System.out.println("\nAI Response:");
+            System.out.println(aiResponse);
+
+            if (aiResponse.toLowerCase().contains("youtube")) {
 
                 System.out.println("Opening YouTube...");
                 Desktop.getDesktop().browse(new URI("https://www.youtube.com"));
 
-            } else if (response.contains("google")) {
+            }
+
+            else if (aiResponse.toLowerCase().contains("google")) {
 
                 System.out.println("Opening Google...");
                 Desktop.getDesktop().browse(new URI("https://www.google.com"));
-
-            } else {
-
-                System.out.println("No valid action found.");
 
             }
 

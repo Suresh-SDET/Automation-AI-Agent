@@ -1,12 +1,16 @@
 package com.ai.framework;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
 public class AIClient {
 
-    public String askAI(String prompt) {
+    public String getAIResponse(String prompt) {
+
+        String response = "";
 
         try {
 
@@ -17,36 +21,47 @@ public class AIClient {
             conn.setRequestProperty("Content-Type", "application/json");
             conn.setDoOutput(true);
 
-            String requestBody = "{"
-                    + "\"model\":\"llama3\","
-                    + "\"prompt\":\"Respond ONLY in this format: ACTION:<action> VALUE:<value>. User request: "
-                    + prompt + "\","
+            // Request JSON
+            String jsonInput = "{"
+                    + "\"model\":\"phi3\","
+                    + "\"prompt\":\"" + prompt + "\","
                     + "\"stream\":false"
                     + "}";
 
             OutputStream os = conn.getOutputStream();
-            os.write(requestBody.getBytes());
+            os.write(jsonInput.getBytes());
             os.flush();
             os.close();
 
             BufferedReader br = new BufferedReader(
-                    new InputStreamReader(conn.getInputStream()));
+                    new InputStreamReader(conn.getInputStream())
+            );
 
             String line;
-            StringBuilder response = new StringBuilder();
+            StringBuilder result = new StringBuilder();
 
             while ((line = br.readLine()) != null) {
-                response.append(line);
+                result.append(line);
             }
 
             br.close();
 
-            return response.toString();
+            // Extract only the AI response
+            String fullJson = result.toString();
+
+            int start = fullJson.indexOf("\"response\":\"") + 12;
+            int end = fullJson.indexOf("\",\"done\"");
+
+            response = fullJson.substring(start, end);
+
+            // Format the response properly
+            response = response.replace("\\n", "\n")
+                               .replace("\\\"", "\"");
 
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        return "";
+        return response;
     }
 }
